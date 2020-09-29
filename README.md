@@ -30,7 +30,7 @@ Options:
 #### __Require__
 - prodigal
 - hmmsearch
-- > python3.7.5
+- '>' python3.7.5
 - scikit-learn
 - kmeans1d
 - pandas
