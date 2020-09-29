@@ -86,7 +86,7 @@ def run_HMM_to_Marker(prodigal,hmmsearch,bin_F,bin_P,name,Pfam,Tigrfam,log_P):
         proc.communicate()
     return 0
 
-def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu):
+def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu,log_P):
     BSCGs={};ASCGs={}
     BCheck=[];ACheck=[]
     with open(bin_P+'/gene.Total.hit','r') as B:
@@ -97,8 +97,8 @@ def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu):
                 ACheck,ASCGs=cb.make_Marker(l,cb.AR122_MARKERS,ACheck,ASCGs)
     BBinStat=collections.Counter(BCheck)
     ABinStat=collections.Counter(ACheck)
-    Sb=cb.check_Marker(gF_P,ex,oF_P,i,cov,BBinStat,BSCGs,cb.BAC120_MARKERS,'Bac',preF,cpu)
-    Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,'Arc',preF,cpu) 
+    Sb=cb.check_Marker(gF_P,ex,oF_P,i,cov,BBinStat,BSCGs,cb.BAC120_MARKERS,'Bac',preF,cpu,log_P)
+    Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,'Arc',preF,cpu,log_P) 
     return Sb,Sa
 
 def main(gF,cov,oF,ex,preF,sizeG,cpu,bypass):
@@ -132,7 +132,7 @@ def main(gF,cov,oF,ex,preF,sizeG,cpu,bypass):
     for i in bins:
         print (i)
         flag=0
-        name=i.split('.'+ex)[0]
+        name=i.split(ex)[0]
         bin_F=os.path.join(gF_P,i)
         bin_P=os.path.join(gF_P,name)
         #filtering MAGs size 500k
@@ -142,12 +142,12 @@ def main(gF,cov,oF,ex,preF,sizeG,cpu,bypass):
        
         pathlib.Path(bin_P).mkdir(parents=True, exist_ok=True) 
         if os.path.isfile(bin_P+'/gene.Total.hit'):
-            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu)
+            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu,log_P=oF_P)
         elif bypass == "N":
             flag=run_HMM_to_Marker(prodigal,hmmsearch,bin_F,bin_P,name,Pfam,Tigrfam,log_P=oF_P)
             if flag==1:
                 continue
-            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu)
+            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu,log_P=oF_P)
         try:
             Stat.update(Sb)
         except:
@@ -194,4 +194,4 @@ if __name__=="__main__":
             opts.thread=4
         if opts.bypass is None:
             opts.bypass="N"
-        main(opts.genome,opts.coverage,opts.output,opts.extension,opts.prefix,opts.size,opts.thread,opts.bypass)
+        main(opts.genome,opts.coverage,opts.output,'.'+opts.extension,opts.prefix,opts.size,opts.thread,opts.bypass)

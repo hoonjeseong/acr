@@ -35,23 +35,30 @@ def Clustering(Fasta,Coverage,Size,cpu):
     df=df.loc[Bin,:]
     if int(Size) > len(df.index):
         return {},0
-    df1 = df.values
-    df_name=df.index
-    # Number of clusters
-    kmeans = KMeans(n_clusters=int(Size),n_init=30,n_jobs=cpu)
-    # Fitting the input data
-    kmeans = kmeans.fit(df1)
-    # Getting the cluster labels
-    labels = kmeans.predict(df1)
-    # Centroid values
-    centroids = kmeans.cluster_centers_
+    # start clustering
+    if len(df.columns)==1: # 1-d kmeans
+        df1 =df.iloc[:,0].to_list()
+        df_name=df.index
+        labels, centroids = kmeans1d.cluster(df1, int(Size))
+    else: # kmeans
+        df1 = df.values
+        df_name=df.index
+        # Number of clusters
+        kmeans = KMeans(n_clusters=int(Size),n_init=30,n_jobs=cpu)
+        # Fitting the input data
+        kmeans = kmeans.fit(df1)
+        # Getting the cluster labels
+        labels = kmeans.predict(df1)
+        # Centroid values
+        centroids = kmeans.cluster_centers_
     Sep_fa={}
     for i,j in enumerate(df_name):
         Sep_fa.setdefault(str(labels[i]),[]).append(j)
     return Sep_fa,Fa_Size
 
-def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,tag,Path,Ex_contig,sub,Prefix):
+def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,tag,Path,Ex_contig,sub,Prefix,log_P,N,Ex):
     Maximum={}
+    Log_F=open(log_P+'/acr.kmean.out','a') #open log
     for c in Km:
         Check=[];Size=0
         for i in Km[c]:
@@ -62,13 +69,14 @@ def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,tag,Path,Ex_contig,sub,Pre
         Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat.keys())))*100/float(len(Marker))
         Redundancy=sum([BinStat[k]-1 for k in BinStat.keys() if BinStat[k]>1])*100/float(len(Marker))
         Score=float(Completeness)-float(5*Redundancy)
-        print ('Completeness:',Completeness,'Redundancy:',Redundancy,'Size:',Size,'Score:',Score,'ID:',ID.split('.fa')[0], sub)
+        Log_F.write('ID: '+ID.split(Ex)[0]+', number of K:'+str(N)+', Completeness: '+str(Completeness)+', Redundancy: '+str(Redundancy)+', Size: '+str(Size)+', Score: '+str(Score)+', Group: '+ str(sub)+'\n')
         if Score >= 50 and not bool(set(Km[c]) & set(Ex_contig)):
-            NewID=Out_P+'/'+Prefix+'.'+ID.split('.fa')[0]+'-'+str(sub)+'.'+tag
+            NewID=Out_P+'/'+Prefix+'.'+ID.split(Ex)[0]+'-'+str(sub)+'.'+tag
             Write_Fa(Path+'/'+ID,NewID,Km[c])
-            Log[str(ID.split('.fa')[0]+'-'+str(sub)+'.'+tag)]={'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Score}
+            Log[str(ID.split(Ex)[0]+'-'+str(sub)+'.'+tag)]={'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Score}
             sub+=1
             Ex_contig+=Km[c]
+    Log_F.close()
     return Log,Ex_contig,sub 
 
 def make_Marker(l,Marker,Check,SCGs):
@@ -80,18 +88,18 @@ def make_Marker(l,Marker,Check,SCGs):
             SCGs.setdefault(l[0].split('_')[0],[]).append(l[3])
     return Check,SCGs
 
-def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,tag,Prefix,cpu):
+def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,tag,Prefix,cpu,log_P):
     Log={}
     Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat.keys())))*100/float(len(Marker))
     Redundancy=sum([BinStat[k]-1 for k in BinStat.keys() if BinStat[k]>1])*100/float(len(Marker))
     if float(Completeness) - 5*float(Redundancy) >= 50:
-        shutil.copy(Path+'/'+i,Out_P+'/'+Prefix+'.'+i.split('.fa')[0]+'.'+tag)
+        shutil.copy(Path+'/'+i,Out_P+'/'+Prefix+'.'+i.split(Ex)[0]+'.'+tag)
         Size=Cal_size(Path+'/'+i)
         Log[str(i.split(Ex)[0]+'.'+tag)]={'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Completeness- 5*Redundancy}
     elif Completeness >= 50:
         ex_contig=[];sub=0
         for n in range(15):
             Km,Fa_Size=Clustering(Path+'/'+i,Cov_P,n+1,cpu)
-            Log,ex_contig,sub=Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,tag,Path,ex_contig,sub,Prefix)
-            print ('times:',n)
+            Log,ex_contig,sub=Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,tag,Path,ex_contig,sub,Prefix,log_P,n+1,Ex)
+            #print ('times:',n)
     return Log
