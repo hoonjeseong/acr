@@ -1,12 +1,3 @@
-__author__ = "Hoon Je Seong"
-__copyright__ = "Copyright 2020"
-__version__ = '0.1.0'
-__credits__ = ["Hoon Je Seong"]
-__license__ = "GPL3"
-__maintainer__ = "Hoon Je Seong"
-__email__ = "hoonjeseong@gmail.com"
-__status__ = "Development"
-
 import sys,os
 import shutil
 import pathlib
@@ -113,22 +104,20 @@ def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,cpu):
 def main(gF,cov,oF,ex,preF,sizeG,cpu,bypass):
     # check DB and program path
     info_P=str(pathlib.Path(__file__).parent.absolute())+'/programs.txt'
+    Pfam=str(pathlib.Path(__file__).parent.absolute())+'/data/gtdbtk86/Pfam-A.hmm'
+    Tigrfam=str(pathlib.Path(__file__).parent.absolute())+'/data/gtdbtk86/tigrfam.hmm'
     if not os.path.isfile(info_P):
         logging.error("Please check program.txt file !\n")
         sys.exit()
     with open(info_P,'r') as I:
         for i in I:
             i=i.rstrip('\n').split(':')
-            if i[0]=='Pfam':
-                Pfam=i[1]
-            if i[0]=='Tigrfam':
-                Tigrfam=i[1]
             if i[0]=='prodigal':
                 prodigal=find_p(i[1])
             if i[0]=='hmmsearch':
                 hmmsearch=find_p(i[1])
     if not os.path.isfile(Pfam) or not os.path.isfile(Tigrfam):
-        logging.error("Please set the Pfam, Tigrfam DB path !\n")
+        logging.error("Please check the Pfam, Tigrfam DB path !\n")
         sys.exit()
     
     # running the program
