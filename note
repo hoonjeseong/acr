@@ -1,0 +1,1 @@
+python3 acr.py -g ./test_set/bin/ -o ./refined -c test_set/cov.txt

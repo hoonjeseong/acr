@@ -1,0 +1,5 @@
+prodigal:/home/bioware/Prodigal/prodigal
+hmmsearch:/home/bioware/hmmer-3.1b2/binaries/hmmsearch
+Pfam:/data/Database/GTDB_86/release86/markers/pfam/Pfam-A.hmm
+Tigrfam:/data/Database/GTDB_86/release86/markers/tigrfam/tigrfam.hmm
+EukRep:/opt/ohpc/pub/apps/python3/3.5.4/bin/EukRep
