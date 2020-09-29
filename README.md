@@ -1,6 +1,6 @@
 # ACR (Additional Clustering Refiner)
 
-__Additional Clustering Refiner (ACR)__, which regroups the contigs of the MAGs using k-means clustering algorithm, to obtain MAGs with better quality. 
+__Additional Clustering Refiner (ACR)__, which regroups the contigs of the metagenome-assembled genomes (MAGs) using k-means clustering algorithm, to obtain MAGs with better quality. 
 
 ----
 #### __Usage__
