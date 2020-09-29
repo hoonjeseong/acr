@@ -50,7 +50,9 @@ hmmsearch:[/usr/bin/hmmsearch]
 ----
 #### __Algorithm and test with freshwater metagenome data__
 
-![image](https://user-images.githubusercontent.com/39515472/94560202-407d3300-029d-11eb-95ed-cd319f6171c4.png)
+![algorithm](https://user-images.githubusercontent.com/39515472/94560202-407d3300-029d-11eb-95ed-cd319f6171c4.png)
 
 ----
 #### __Benchmark with CAMI high data__
+
+![cami_h1](https://user-images.githubusercontent.com/39515472/94561304-c9e13500-029e-11eb-800c-26afb8e5e37a.png)
