@@ -56,3 +56,4 @@ hmmsearch:[/usr/bin/hmmsearch]
 #### __Benchmark with CAMI high data__
 
 ![cami_h1](https://user-images.githubusercontent.com/39515472/94561304-c9e13500-029e-11eb-800c-26afb8e5e37a.png)
+![cami_h2](https://user-images.githubusercontent.com/39515472/94561492-0d3ba380-029f-11eb-9802-a5c91a8ed18a.png)
