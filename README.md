@@ -1,5 +1,5 @@
 # ACR (Additional Clustering Refiner)
-----
+
 __Additional Clustering Refiner (ACR)__, which regroups the contigs of the MAGs using k-means clustering algorithm, to obtain MAGs with better quality. 
 
 ----
@@ -30,7 +30,7 @@ Options:
 #### __Require__
 - prodigal
 - hmmsearch
-- >=python3.7.5
+- > python3.7.5
 - scikit-learn
 - kmeans1d
 - pandas
