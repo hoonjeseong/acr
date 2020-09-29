@@ -26,14 +26,16 @@ Options:
                         bypass prodigal - hmmsearch | default = N
 ```
 
-### __Examples__
+#### __Examples__
 `python acr.py -g test_set/bin/ -c test_set/cov.txt -o test_result`
 
 ----
 #### __Require__
 
 ACR requires python 3.6 or above. 
+
 To run ACR, the absolute paths of prodigal and hmmsearch must be written in the program.txt file as follows:
+
 `prodigal:[/usr/bin/prodigal]`
 
 - prodigal
