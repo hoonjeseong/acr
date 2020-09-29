@@ -36,7 +36,8 @@ ACR requires python 3.6 or above.
 
 To run ACR, the absolute paths of prodigal and hmmsearch must be written in the program.txt file as follows:
 
-`prodigal:[/usr/bin/prodigal]`
+`prodigal:[/usr/bin/prodigal]
+ hmmsearch:[/usr/bin/hmmsearch]`
 
 - prodigal
 - hmmsearch
