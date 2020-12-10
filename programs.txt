@@ -1,3 +1,6 @@
 prodigal:prodigal
 hmmsearch:hmmsearch
+hmmalign:hmmalign
+pplacer:pplacer
+guppy:guppy
 EukRep:EukRep
