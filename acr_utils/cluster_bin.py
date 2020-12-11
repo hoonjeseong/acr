@@ -15,14 +15,6 @@ BAC120_MARKERS = set(["PF00380.14", "PF00410.14", "PF00466.15", "PF01025.14", "P
 
 AR122_MARKERS = set(["PF01868.11", "PF01282.14", "PF01655.13", "PF01092.14", "PF01000.21", "PF00368.13", "PF00827.12", "PF01269.12", "PF00466.15", "PF01015.13", "PF13685.1", "PF02978.14", "PF04919.7", "PF01984.15", "PF04104.9", "PF00410.14", "PF01798.13", "PF01864.12", "PF01990.12", "PF07541.7", "PF04019.7", "PF00900.15", "PF01090.14", "PF02006.11", "PF01157.13", "PF01191.14", "PF01866.12", "PF01198.14", "PF01496.14", "PF00687.16", "PF03874.11", "PF01194.12", "PF01200.13", "PF13656.1", "PF01280.15", "TIGR00468", "TIGR01060", "TIGR03627", "TIGR01020", "TIGR02258", "TIGR00293", "TIGR00389", "TIGR01012", "TIGR00490", "TIGR03677", "TIGR03636", "TIGR03722", "TIGR00458", "TIGR00291", "TIGR00670", "TIGR00064", "TIGR03629", "TIGR00021", "TIGR03672", "TIGR00111", "TIGR03684", "TIGR01077", "TIGR01213", "TIGR01080", "TIGR00501", "TIGR00729", "TIGR01038", "TIGR00270", "TIGR03628", "TIGR01028", "TIGR00521", "TIGR03671", "TIGR00240", "TIGR02390", "TIGR02338", "TIGR00037", "TIGR02076", "TIGR00335", "TIGR01025", "TIGR00471", "TIGR00336", "TIGR00522", "TIGR02153", "TIGR02651", "TIGR03674", "TIGR00323", "TIGR00134", "TIGR02236", "TIGR03683", "TIGR00491", "TIGR00658", "TIGR03680", "TIGR00392", "TIGR00422", "TIGR00279", "TIGR01052", "TIGR00442", "TIGR00308", "TIGR00398", "TIGR00456", "TIGR00549", "TIGR00408", "TIGR00432", "TIGR00264", "TIGR00982", "TIGR00324", "TIGR01952", "TIGR03626", "TIGR03670", "TIGR00337", "TIGR01046", "TIGR01018", "TIGR00936", "TIGR00463", "TIGR01309", "TIGR03653", "TIGR00042", "TIGR02389", "TIGR00307", "TIGR03673", "TIGR00373", "TIGR01008", "TIGR00283", "TIGR00425", "TIGR00405", "TIGR03665", "TIGR00448"])
 
-#euk_m=str(pathlib.Path(__file__).parent.parent.absolute())+'/data/eukcc_db_20191023/sets/'
-#EUK_MARKERS=collections.defaultdict(set)
-#for i in glob(euk_m+'*.set'):
-#    name=i.split('/')[-1].split('.set')[0]
-#    with open(i,'r') as M:
-#        for l in M:
-#            EUK_MARKERS[name].add(l.rstrip('\n'))
-
 # functions 
 def is_integer(n):
     try:
@@ -69,7 +61,7 @@ def Clustering(Fasta,Coverage,Size,process,jgi):
         df1 = df.values
         df_name=df.index
         # Number of clusters
-        kmeans = KMeans(n_clusters=int(Size),n_init=30,n_jobs=process)
+        kmeans = KMeans(n_clusters=int(Size),n_init=30)
         # Fitting the input data
         kmeans = kmeans.fit(df1)
         # Getting the cluster labels
@@ -125,19 +117,13 @@ def make_Marker(l,Marker,Check,SCGs):
             SCGs.setdefault(l[0].split('_')[0],[]).append(gID)
     return Check,SCGs
 
-def select_E_marker(Marker): #,SCGs):
-    euk_m=str(pathlib.Path(__file__).parent.parent.absolute())+'/data/eukcc_db_20191023/sets/'
+def select_E_marker(Marker):
+    euk_m=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc/sets/'
     EUK_MARKER=set()
     with open(euk_m+Marker+'.set','r') as M:
         for l in M:
             EUK_MARKER.add(l.rstrip('\n'))
     return EUK_MARKER
-#    nSCGs={};nCheck=[]
-#    top_set={}#collections.defaultdict(set)
-#    for E,S in Euk_marker_score([g for c in SCGs for g in SCGs[c]],Marker):
-#        top_set[S]=E
-#    E=top_set[max(top_set)]
-#    return E
 
 def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,f_Score,tag,Prefix,process,jgi,log_P):
     Log={}
@@ -152,5 +138,4 @@ def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,f_Score,tag,Prefix,pr
         for n in range(15):
             Km,Fa_Size=Clustering(Path+'/'+i,Cov_P,n+1,process,jgi)
             Log,ex_contig,sub=Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,f_Score,tag,Path,ex_contig,sub,Prefix,log_P,n+1,Ex)
-            #print ('times:',n)
     return Log

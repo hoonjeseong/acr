@@ -13,31 +13,7 @@ import acr_utils.NRmarker as NR
 from Bio.SeqIO.FastaIO import SimpleFastaParser as SFP
 from glob import glob
 
-def run_cmd(cmd,log_dir,shell=False,program=False):
-    # make log
-    log_P=os.path.abspath(log_dir)
-    Out = os.path.join(log_P+'/acr.log.out')
-    Err = os.path.join(log_P+'/acr.log.err')
-
-    with open(Out, 'a') as L:
-        now=str(datetime.datetime.now().date()) + '_' + \
-            str(datetime.datetime.now().time()).replace(':', '.')
-        if program:
-            now='#### '+program+' running : '+now+' ####'
-        if shell:
-            L.write('time: '+now+'\n'+str(cmd)+ '\n')
-        else:
-            L.write('time: '+now+'\n'+' '.join(cmd)+'\n')
-    # run 
-    if shell:
-        with open(Out,'a') as sto, open(Err,'a') as ste:
-            subprocess.call(cmd,stdout=sto,stderr=ste,shell=True)
-    else:
-        with open(Out,'a') as sto, open(Err,'a') as ste:
-            proc=subprocess.Popen(cmd,stdout=sto, stderr=ste)
-            proc.communicate()
-
-def run_cmd2(cmd,log_dir,shell=False,program=False,check=True):
+def run_cmd(cmd,log_dir,shell=False,program=False,check=True):
     # make log
     log_P=os.path.abspath(log_dir)
     Out = os.path.join(log_P+'/acr.log.out')
@@ -82,10 +58,10 @@ def find_p(name):
                 o=subprocess.check_output([loc,help_m],stderr=subprocess.STDOUT,shell=False,universal_newlines=True,encoding='utf-8')
             return loc
         except:
-            logging.error("Please check the {0} !\n".format(loc)) 
+            logging.error("Please check the {0} !\n".format(name)) 
             sys.exit()
     else:
-        logging.error("Please set the {0} path !\n".format(loc))
+        logging.error("Please set the {0} path !\n".format(name))
         sys.exit()
 
 def filter_overlapped(evalue,strand,cds_f):
@@ -171,7 +147,7 @@ def score_sort(blast_out,blast_filter,evalue_f=False,cds_f=False):
 
 def run_prodigal(prodigal,bin_F,bin_P,name,log_P):
     cmd=[prodigal,'-i',bin_F,'-a',bin_P+'/'+name+'.faa','-d',bin_P+'/'+name+'.fna','-f','gff','-o',bin_P+'/'+name+'.gff']
-    run_cmd2(cmd,program='prodigal',log_dir=log_P)
+    run_cmd(cmd,program='prodigal',log_dir=log_P)
     statinfo = os.stat(bin_P+'/'+name+'.faa')
     if float(statinfo.st_size)==0:
         write_log(log_P,"# faa file is not exist")
@@ -179,23 +155,17 @@ def run_prodigal(prodigal,bin_F,bin_P,name,log_P):
     return 0
 
 def run_HMM_to_Marker(hmmsearch,process,bin_P,name,Pfam,Tigrfam,Eukcc_DB,log_P):
-    #cmd=[hmmsearch,'--cpu',str(process),'--tblout',bin_P+'/gene.P.hit','--cut_ga',Pfam,bin_P+'/'+name+'.faa','>',bin_P+'/gene.Pfam']
-    #run_cmd(' '.join(cmd),program='hmmsearch',log_dir=log_P,shell=True)
     cmd=[hmmsearch,'--cpu',str(process),'-o',bin_P+'/gene.Pfam','--tblout',bin_P+'/gene.P.hit','--cut_ga',Pfam,bin_P+'/'+name+'.faa']
-    run_cmd2(cmd,program='hmmsearch',log_dir=log_P,shell=False)
+    run_cmd(cmd,program='hmmsearch',log_dir=log_P,shell=False)
     score_sort(bin_P+'/gene.P.hit',bin_P+'/gene.f.P.hit')
 
-    #cmd=[hmmsearch,'--cpu',str(process),'--tblout',bin_P+'/gene.T.hit','--cut_ga',Tigrfam,bin_P+'/'+name+'.faa','>',bin_P+'/gene.Tfam']
-    #run_cmd(' '.join(cmd),program='hmmsearch',log_dir=log_P,shell=True)
     cmd=[hmmsearch,'--cpu',str(process),'-o',bin_P+'/gene.Tfam','--tblout',bin_P+'/gene.T.hit','--cut_ga',Tigrfam,bin_P+'/'+name+'.faa']
-    run_cmd2(cmd,program='hmmsearch',log_dir=log_P,shell=False)
+    run_cmd(cmd,program='hmmsearch',log_dir=log_P,shell=False)
     score_sort(bin_P+'/gene.T.hit',bin_P+'/gene.f.T.hit')
 
     if Eukcc_DB:
-        #cmd=[hmmsearch,'--cpu',str(process),'--tblout',bin_P+'/gene.E.hit','--cut_ga',Eukcc_DB,bin_P+'/'+name+'.faa','>',bin_P+'/gene.Efam']
-        #run_cmd(' '.join(cmd),program='hmmsearch',log_dir=log_P,shell=True)
         cmd=[hmmsearch,'--cpu',str(process),'-o',bin_P+'/gene.Efam','--tblout',bin_P+'/gene.E.hit','--cut_ga',Eukcc_DB,bin_P+'/'+name+'.faa']
-        run_cmd2(cmd,program='hmmsearch',log_dir=log_P,shell=False)
+        run_cmd(cmd,program='hmmsearch',log_dir=log_P,shell=False)
         score_sort(bin_P+'/gene.E.hit',bin_P+'/gene.f.E.hit',evalue_f=float(1e-5),cds_f=1)
         
         cmd=['cat',bin_P+'/gene.f.P.hit',bin_P+'/gene.f.T.hit',bin_P+'/gene.f.E.hit'] 
@@ -238,8 +208,7 @@ def reduceJplace(jplace, jplaceselection, placementCutoff=0.4):
 
 def find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,DB,refpkg,Eukcc_core_list,Eukcc_core_tree,Eukcc_marker_setinfo,log_P):
     cmd=[hmmsearch,'--cpu',str(process),'-o',bin_P+'/gene.Ecfam','--tblout',bin_P+'/gene.Ec.hit','--cut_ga',DB,bin_P+'/'+name+'.faa']
-    #run_cmd(' '.join(cmd),program='hmmsearch',log_dir=log_P,shell=True)
-    run_cmd2(cmd,program='hmmsearch',log_dir=log_P,shell=False)
+    run_cmd(cmd,program='hmmsearch',log_dir=log_P,shell=False)
     score_sort(bin_P+'/gene.Ec.hit',bin_P+'/gene.f.Ec.hit')
     top_hit={}
     # get order of SCGs
@@ -272,8 +241,7 @@ def find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,DB,refpk
         gSeq=collections.defaultdict(dict)
         for g in gOrder:
             cmd=[hmmalign,'-o',tmp_P+'/'+g+'.aln','--outformat','afa','--mapali',refpkg+'/'+g+'.refpkg/'+g+'.fasta','--amino',refpkg+'/'+g+'.refpkg/'+g+'.hmm',tmp_P+'/'+g+'.faa']
-            #run_cmd(' '.join(cmd),program='hmmalign',log_dir=log_P,shell=True)
-            run_cmd2(cmd,program='hmmalign',log_dir=log_P,shell=False)
+            run_cmd(cmd,program='hmmalign',log_dir=log_P,shell=False)
             with open(tmp_P+'/'+g+'.aln','r') as T:
                 for t,s in SFP(T):
                     gSeq[t][g]=s.replace(".","-").replace("*","-")
@@ -301,8 +269,7 @@ def find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,DB,refpk
         os.remove(c)
     # run pplacer
     cmd=[pplacer,'-p','--keep-at-most','5','-m','LG','-j',str(process),'-o',tmp_P+'/concat.pp','-c',refpkg+'/concat.refpkg',tmp_P+'/concat_aln.fasta']
-    #run_cmd(' '.join(cmd),program='pplacer',log_dir=log_P,shell=True)
-    run_cmd2(cmd,program='pplacer',log_dir=log_P,shell=False,check=False)
+    run_cmd(cmd,program='pplacer',log_dir=log_P,shell=False,check=False)
     if not os.path.isfile(tmp_P+'/concat.pp'):
         write_log(log_P,"could not find euk genome signal...")
         return None 
@@ -310,8 +277,7 @@ def find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,DB,refpk
     reduceJplace(tmp_P+'/concat.pp',tmp_P+'/concat.pp.jplace',0.4)
     # run guppy
     cmd=[guppy,'tog',tmp_P+'/concat.pp.jplace','-o',tmp_P+'/placement.tree']
-    #run_cmd(' '.join(cmd),program='guppy',log_dir=log_P,shell=True)
-    run_cmd2(cmd,program='guppy',log_dir=log_P,shell=False)
+    run_cmd(cmd,program='guppy',log_dir=log_P,shell=False)
     if not os.path.isfile(tmp_P+'/placement.tree'):
         write_log(log_P,"could not make euk tree...") 
         return None
@@ -324,7 +290,18 @@ def find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,DB,refpk
             print ("find the best marker for eukaryotic MAG: ",marker,sisters)
             write_log(log_P,"marker of Eukcc: "+marker)
             return marker
-    
+
+def make_euk_marker(hmmpress,Eukcc_DB,tmp_P,PTHR_P,log_P):
+    tmp=set()
+    with open(Eukcc_DB,'r') as E:
+        for i in E:
+            tmp.add(i.strip().split()[0]+'.hmm')
+    with open(tmp_P,'w') as N:
+        for p in tmp:
+            with open(PTHR_P+'/'+p,'r') as l:
+                N.write(l.read())
+    cmd=[hmmpress,tmp_P]
+    run_cmd(cmd,program='hmmpress',log_dir=log_P,shell=False)
 
 def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P):
     BSCGs={};ASCGs={};ESCGs={}
@@ -339,7 +316,8 @@ def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P):
     BBinStat=collections.Counter(BCheck)
     ABinStat=collections.Counter(ACheck)
     Sb=cb.check_Marker(gF_P,ex,oF_P,i,cov,BBinStat,BSCGs,cb.BAC120_MARKERS,50,'Bac',preF,process,jgi,log_P)
-    Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,50,'Arc',preF,process,jgi,log_P) 
+    Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,50,'Arc',preF,process,jgi,log_P)
+    
     if Eukcc_DB:
         EUK_MARKERS=cb.select_E_marker(Eukcc_DB.split('/')[-1].split('.')[0])
         with open(bin_P+'/gene.Total.hit','r') as B:
@@ -358,12 +336,11 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi):
     info_P=str(pathlib.Path(__file__).parent.absolute())+'/programs.txt'
     Pfam=str(pathlib.Path(__file__).parent.absolute())+'/data/gtdbtk86/Pfam-A.hmm'
     Tigrfam=str(pathlib.Path(__file__).parent.absolute())+'/data/gtdbtk86/tigrfam.hmm'
-    Eukcc_core=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/concat.hmm'
-    Eukcc_core_tree=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/refpkg/concat.refpkg/concat.tree'
-    Eukcc_marker_setinfo=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/sets/setinfo.csv'
-    Eukcc_marker_set=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/hmm_sets/sets/'
-    Eukcc_core_info=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/refpkg/'
-    Eukcc_core_list=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc_db_20191023/profile.list'
+    Eukcc_P=str(pathlib.Path(__file__).parent.absolute())+'/data/eukcc/'
+
+    if not os.path.isdir(Eukcc_P):
+        logging.error("Please set eukcc DB filepath !\n")
+        sys.exit()
 
     if not os.path.isfile(info_P):
         logging.error("Please check program.txt file !\n")
@@ -375,10 +352,12 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi):
                 prodigal=find_p(i[1])
             if i[0]=='hmmsearch':
                 hmmsearch=find_p(i[1])
-            if i[0]=='EukRep':
-                EukRep=find_p(i[1])
             if i[0]=='hmmalign':
                 hmmalign=find_p(i[1])
+            if i[0]=='hmmpress':
+                hmmpress=find_p(i[1])
+            if i[0]=='EukRep':
+                EukRep=find_p(i[1])
             if i[0]=='pplacer':
                 pplacer=find_p(i[1])
             if i[0]=='guppy':
@@ -392,6 +371,22 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi):
     oF_P=os.path.abspath(oF)
     pathlib.Path(oF_P).mkdir(parents=True, exist_ok=True)
 
+    # make node's DB path
+    pathlib.Path(gF_P+'/node_hmm/').mkdir(parents=True, exist_ok=True)
+    # Eukcc path setting
+    Eukcc_core=Eukcc_P+'/hmms/concat.hmm'
+    Eukcc_core_tree=Eukcc_P+'/refpkg/concat.refpkg/concat.tree'
+    Eukcc_refpkg=Eukcc_P+'refpkg/'
+    Eukcc_marker_hmm=Eukcc_P+'hmms/panther/'
+    Eukcc_marker_set=Eukcc_P+'sets/'
+    Eukcc_marker_setinfo=Eukcc_P+'sets/setinfo.csv'
+    # Eukcc core DB setting
+    tmp=[i for i in glob(Eukcc_core+'.h3*')]
+    if len(tmp)!=4:
+        cmd=[hmmpress,Eukcc_core]
+        run_cmd(cmd,program='hmmpress',log_dir=oF_P,shell=False)
+
+    # run refining!
     bins=os.listdir(gF_P) 
     bins=filter(lambda x:x.endswith(ex),bins)
     Stat={}
@@ -410,27 +405,25 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi):
         statinfo = os.stat(bin_F)
         if float(statinfo.st_size)>=5000000:
             cmd=[EukRep,"-i",bin_F,"-o",gF_P+"/eukrep.tmp","-ff"]
-            #proc=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf8')
-            #run_cmd(' '.join(cmd),program='eukrep',log_dir=oF_P,shell=True)
-            run_cmd2(cmd,program='eukrep',log_dir=oF_P,shell=False)
+            run_cmd(cmd,program='eukrep',log_dir=oF_P,shell=False)
             if os.stat(gF_P+"/eukrep.tmp").st_size >=500000:
                 write_log(oF_P,"# Pass Eukrep for a MAG")
                 Eukcc_DB=Eukcc_marker_set
             os.remove(gF_P+"/eukrep.tmp")
-
-        #if not Eukcc_DB: #tmp skip by hoonje
-        #    continue
-
-        # make output path
+        # make bin output path
         pathlib.Path(bin_P).mkdir(parents=True, exist_ok=True)
         # run prodigal
         if run_prodigal(prodigal,bin_F,bin_P,name,log_P=oF_P)==1:
             continue
         # find nearest the euk marker
         if Eukcc_DB:
-            Eukcc_DB=find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,Eukcc_core,Eukcc_core_info,Eukcc_core_list,Eukcc_core_tree,Eukcc_marker_setinfo,log_P=oF_P)
+            Eukcc_DB=find_euk_Marker(hmmsearch,hmmalign,pplacer,guppy,process,bin_P,name,Eukcc_core,Eukcc_refpkg,Eukcc_P+'profile.list',Eukcc_core_tree,Eukcc_marker_setinfo,log_P=oF_P)
             if Eukcc_DB:
-                Eukcc_DB=os.path.join(Eukcc_marker_set,Eukcc_DB+'.hmm')
+                Eukcc_set=os.path.join(Eukcc_marker_set,Eukcc_DB+'.set')
+                Eukcc_DB=os.path.join(gF_P,'node_hmm',Eukcc_DB+'.hmm')
+                # gather node's core genes for hmmsearch
+                if not os.path.isfile(Eukcc_DB):
+                    make_euk_marker(hmmpress,Eukcc_set,Eukcc_DB,Eukcc_marker_hmm,oF_P)
             else:
                 Eukcc_DB=False
         # bypass
