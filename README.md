@@ -34,15 +34,26 @@ Options:
 
 ACR requires python 3.6 or above. 
 
+please download EukCC database file to acr path
+
+```
+wget http://ftp.ebi.ac.uk/pub/databases/metagenomics/eukcc/eukcc_db_v1.1.tar.gz
+tar -xzvf eukcc_db_v1.1.tar.gz
+mv eukcc_db_v1.1 [acr path]/data/
+```
+
 To run ACR, the absolute paths of prodigal and hmmsearch must be written in the program.txt file as follows:
 
 ```
+e.g)
 prodigal:[/usr/bin/prodigal]
 hmmsearch:[/usr/bin/hmmsearch]
  ```
 
 - prodigal
 - hmmsearch
+- hmmalign
+- hmmpress
 - scikit-learn
 - kmeans1d
 - pandas
