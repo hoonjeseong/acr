@@ -39,7 +39,7 @@ please download EukCC database file to acr path
 ```
 wget http://ftp.ebi.ac.uk/pub/databases/metagenomics/eukcc/eukcc_db_v1.1.tar.gz
 tar -xzvf eukcc_db_v1.1.tar.gz
-mv eukcc_db_v1.1 [acr path]/data/
+mv eukcc_db_v1.1 [acr path]/data/eukcc/
 ```
 
 To run ACR, the absolute paths of prodigal and hmmsearch must be written in the program.txt file as follows:
