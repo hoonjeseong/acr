@@ -48,12 +48,19 @@ hmmsearch:[/usr/bin/hmmsearch]
 - pandas
 
 ----
-#### __Algorithm and test with freshwater metagenome data__
+#### __The overall schematic of the ACR refinement approach with detailed steps__
 
-![algorithm](https://user-images.githubusercontent.com/39515472/94560202-407d3300-029d-11eb-95ed-cd319f6171c4.png)
+![algorithm](https://user-images.githubusercontent.com/39515472/143450640-8227d9dc-db36-4068-94a1-f49d7caf6097.png)
 
 ----
 #### __Benchmark with CAMI high data__
 
 ![cami_h1](https://user-images.githubusercontent.com/39515472/94561304-c9e13500-029e-11eb-800c-26afb8e5e37a.png)
 ![cami_h2](https://user-images.githubusercontent.com/39515472/94561492-0d3ba380-029f-11eb-9802-a5c91a8ed18a.png)
+
+----
+#### __Benchmark with freshwater metagenome data__
+
+![quality_acr](https://user-images.githubusercontent.com/39515472/143451064-29d6a2e4-556c-40fa-8513-d11004484d1a.png)
+
+
