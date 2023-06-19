@@ -55,12 +55,17 @@ tar -zxvf data.tar.gz
 2. Check the Python library
 
 ACR requires python 3.7 or above.
+
 Here are the python library requirements
 
 eukcc==0.2
+
 EukRep==0.6.7
+
 scikit-learn==0.19.2
+
 pandas==1.1.2
+
 kmeans1d==0.3.1
 
 ```
