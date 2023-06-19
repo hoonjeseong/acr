@@ -84,13 +84,24 @@ EukRep:[add absolute path] #https://github.com/patrickwest/EukRep
 runGMES:[add absolute path] #please install GeneMark-ES [http://exon.gatech.edu/GeneMark/license_download.cgi]
 ```
 #### __The overall schematic of the ACR refinement approach with detailed steps__
--Overall ACR workflow
-![image](https://github.com/hoonjeseong/acr/assets/39515472/195959d4-30fc-4bf1-8ddc-ae3b901a9927)
+-__Overall ACR workflow__
+
+<img src = https://github.com/hoonjeseong/acr/assets/39515472/195959d4-30fc-4bf1-8ddc-ae3b901a9927 width="70%" height="70%">
 
 #### __Benchmark with CAMI 1 high complexity data__
-![image](https://github.com/hoonjeseong/acr/assets/39515472/e5729af9-cb03-45d8-9814-5c0c662c59c1)
-A) MAGs recovered from genome binners using the gold-standard assembly of CAMI1’s high-complexity dataset. B) MQ and HQ MAGs’ base pair ratio purity and completeness relative to genome binners. C) MAGs targeted and refined by ACR in the preliminary binner. D) MAGs recovery percentages from "common strain; intra-species levels" groups consisting of 2 to 7 genomes E) MAGs recovery percentages within all common strain genomes relative to purity and completeness. 
+<img src = https://github.com/hoonjeseong/acr/assets/39515472/e5729af9-cb03-45d8-9814-5c0c662c59c1 width="70%" height="70%">
+
+__A)__ MAGs recovered from genome binners using the gold-standard assembly of CAMI1’s high-complexity dataset. 
+
+__B)__ MQ and HQ MAGs’ base pair ratio purity and completeness relative to genome binners. 
+
+__C)__ MAGs targeted and refined by ACR in the preliminary binner. 
+
+__D)__ MAGs recovery percentages from "common strain; intra-species levels" groups consisting of 2 to 7 genomes E) MAGs recovery percentages within all common strain genomes relative to purity and completeness. 
 
 #### __Benchmark with CAMI II rhizosphere data__
-![image](https://github.com/hoonjeseong/acr/assets/39515472/1797e4a6-3e26-4f3d-b917-eb711159e54a)
-A) MQ and HQ MAGs of different genome binner intersections using CAMI2’s rhizosphere gold-standard assembly dataset. B) Recovered fungal MAGs’ genome quality statistics and MAGs information via ACR.
+<img src = https://github.com/hoonjeseong/acr/assets/39515472/1797e4a6-3e26-4f3d-b917-eb711159e54a width="70%" height="70%">
+
+__A)__ MQ and HQ MAGs of different genome binner intersections using CAMI2’s rhizosphere gold-standard assembly dataset. 
+
+__B)__ Recovered fungal MAGs’ genome quality statistics and MAGs information via ACR.
