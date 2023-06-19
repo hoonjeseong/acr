@@ -36,6 +36,8 @@ Options:
 
 #### __Examples__
 `python acr.py -g test_SHIPPO/bin/ -o test_SHIPPO/refine -c test_SHIPPO/cov.txt`
+The example data are genome bins from Seong, et.al's previous ocean microbiome study.
+(https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-022-01340-w)
 
 ----
 #### __Requirements__
