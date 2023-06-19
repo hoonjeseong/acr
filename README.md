@@ -97,7 +97,9 @@ __B)__ MQ and HQ MAGs’ base pair ratio purity and completeness relative to gen
 
 __C)__ MAGs targeted and refined by ACR in the preliminary binner. 
 
-__D)__ MAGs recovery percentages from "common strain; intra-species levels" groups consisting of 2 to 7 genomes E) MAGs recovery percentages within all common strain genomes relative to purity and completeness. 
+__D)__ MAGs recovery percentages from "common strain; intra-species levels" groups consisting of 2 to 7 genomes 
+
+__E)__ MAGs recovery percentages within all common strain genomes relative to purity and completeness. 
 
 #### __Benchmark with CAMI II rhizosphere data__
 <img src = https://github.com/hoonjeseong/acr/assets/39515472/1797e4a6-3e26-4f3d-b917-eb711159e54a width="70%" height="70%">
