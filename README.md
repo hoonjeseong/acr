@@ -58,15 +58,11 @@ ACR requires python 3.7 or above.
 
 Here are the python library requirements
 
-eukcc==0.2
-
-EukRep==0.6.7
-
-scikit-learn==0.19.2
-
-pandas==1.1.2
-
-kmeans1d==0.3.1
+- eukcc==0.2
+- EukRep==0.6.7
+- scikit-learn==0.19.2
+- pandas==1.1.2
+- kmeans1d==0.3.1
 
 ```
 1. conda (or use mamba) create -n ACR -c bioconda python=3.7 eukcc==0.2 EukRep==0.6.7 scikit-learn==0.19.2 pandas==1.1.2
