@@ -83,4 +83,10 @@ guppy:[add absolute path] #https://matsen.fhcrc.org/pplacer/
 EukRep:[add absolute path] #https://github.com/patrickwest/EukRep
 runGMES:[add absolute path] #please install GeneMark-ES [http://exon.gatech.edu/GeneMark/license_download.cgi]
 ```
+#### __The overall schematic of the ACR refinement approach with detailed steps__
+
+#### __Benchmark with CAMI 1 high complexity data__
+
+#### __Benchmark with CAMI II rhizosphere data__
+
 
