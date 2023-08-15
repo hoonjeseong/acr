@@ -71,7 +71,7 @@ def Clustering(Fasta,Coverage,Size,process,jgi):
         Sep_fa.setdefault(str(labels[i]),[]).append(j)
     return Sep_fa,Fa_Size
 
-def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,f_Score,tag,Path,Ex_contig,sub,Prefix,log_P,N,Ex):
+def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,comp,cont,tag,Path,Ex_contig,sub,Prefix,log_P,N,Ex):
     Maximum={}
     Log_F=open(log_P+'/acr.kmean.out','a') #open log
     ########################################### skip lower completeness 
@@ -84,7 +84,7 @@ def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,f_Score,tag,Path,Ex_contig
                 Check+=SCGs[i]
     BinStat=collections.Counter(Check)
     Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat)))*100/float(len(Marker))
-    if Completeness<50:
+    if Completeness<comp:
         Log_F.write('# Break the loop because of lower completeness, Domain: '+tag+', ID: '+ID.split(Ex)[0]+', number of K:'+str(N)+', Completeness: '+str(Completeness)+'\n')
         return False,False,False
     ############################################
@@ -99,44 +99,8 @@ def Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,f_Score,tag,Path,Ex_contig
         Redundancy=sum([BinStat[k]-1 for k in BinStat.keys() if BinStat[k]>1])*100/float(len(Marker))
         Score=float(Completeness)-float(5*Redundancy)
         Log_F.write('Domain: '+tag+', ID: '+ID.split(Ex)[0]+', number of K:'+str(N)+', Completeness: '+str(Completeness)+', Redundancy: '+str(Redundancy)+', Size: '+str(Size)+', Score: '+str(Score)+', Group: '+ str(sub-1)+'\n')
-        if Score >= f_Score and not bool(set(Km[c]) & set(Ex_contig)):
-            NewID=Out_P+'/'+Prefix+'.'+ID.split(Ex)[0]+'-'+str(sub-1)+'.'+tag+'.fa'
-            Write_Fa(Path+'/'+ID,NewID,Km[c])
-            Log[str(ID.split(Ex)[0]+'-'+str(sub-1)+'.'+tag)]={'Domain':tag,'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Score}
-            sub+=1
-            Ex_contig+=Km[c]
-    Log_F.close()
-    return Log,Ex_contig,sub
-
-def Checking_info_Euk(Km,SCGs,Out_P,Fa_Size,Marker,Log,ID,f_Score,tag,Path,Ex_contig,sub,Prefix,log_P,N,Ex):
-    Maximum={}
-    Log_F=open(log_P+'/acr.kmean.out','a') #open log
-    ########################################### skip lower completeness 
-    Check=[]
-    for c in Km:
-        for i in Km[c]:
-            if i in set(Ex_contig):
-                continue
-            if i in SCGs:
-                Check+=SCGs[i]
-    BinStat=collections.Counter(Check)
-    Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat)))*100/float(len(Marker))
-    if Completeness<50:
-        Log_F.write('# Break the loop because of lower completeness, Domain: '+tag+', ID: '+ID.split(Ex)[0]+', number of K:'+str(N)+', Completeness: '+str(Completeness)+'\n')
-        return False,False,False
-    ############################################
-    for c in Km:
-        Check=[];Size=0
-        for i in Km[c]:
-            Size+=Fa_Size[i]
-            if i in SCGs:
-                Check+=SCGs[i]
-        BinStat=collections.Counter(Check)
-        Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat)))*100/float(len(Marker))
-        Redundancy=sum([BinStat[k]-1 for k in BinStat.keys() if BinStat[k]>1])*100/float(len(Marker))
-        Score=float(Completeness)-float(5*Redundancy)
-        Log_F.write('Domain: '+tag+', ID: '+ID.split(Ex)[0]+', number of K:'+str(N)+', Completeness: '+str(Completeness)+', Redundancy: '+str(Redundancy)+', Size: '+str(Size)+', Score: '+str(Score)+', Group: '+ str(sub-1)+'\n')
-        if Completeness >= 50 and Redundancy < 5 and not bool(set(Km[c]) & set(Ex_contig)):
+        #if Score >= f_Score and not bool(set(Km[c]) & set(Ex_contig)): #revision 0731
+        if Completeness >= comp and Redundancy < cont and not bool(set(Km[c]) & set(Ex_contig)): #revised 0731
             NewID=Out_P+'/'+Prefix+'.'+ID.split(Ex)[0]+'-'+str(sub-1)+'.'+tag+'.fa'
             Write_Fa(Path+'/'+ID,NewID,Km[c])
             Log[str(ID.split(Ex)[0]+'-'+str(sub-1)+'.'+tag)]={'Domain':tag,'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Score}
@@ -174,36 +138,20 @@ def select_E_marker(Marker):
             EUK_MARKER.add(l.rstrip('\n'))
     return EUK_MARKER
 
-def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,f_Score,tag,Prefix,process,jgi,log_P):
+def check_Marker(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,comp,cont,tag,Prefix,process,jgi,log_P):
     Log={}
     Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat)))*100/float(len(Marker))
     Redundancy=sum([BinStat[k]-1 for k in BinStat if BinStat[k]>1])*100/float(len(Marker))
-    if float(Completeness) - 5*float(Redundancy) >= f_Score:
+    #if float(Completeness) - 5*float(Redundancy) >= f_Score: #revision comment 0731
+    if float(Completeness) >= comp and float(Redundancy) < cont: #revised 0731
         shutil.copy(Path+'/'+i,Out_P+'/'+Prefix+'.'+i.split(Ex)[0]+'.'+tag+'.fa')
         Size=Cal_size(Path+'/'+i)
         Log[str(i.split(Ex)[0]+'.'+tag)]={'Domain':tag,'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Completeness- 5*Redundancy}
-    elif Completeness >= f_Score:
+    elif Completeness >= comp:
         ex_contig=[];sub=1
-        for n in range(15):
+        for n in range(15): # k-test to 50
             Km,Fa_Size=Clustering(Path+'/'+i,Cov_P,n+1,process,jgi)
-            Log,ex_contig,sub=Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,f_Score,tag,Path,ex_contig,sub,Prefix,log_P,n+1,Ex)
-            if Log==False:
-                break
-    return Log
-
-def check_Marker_Euk(Path,Ex,Out_P,i,Cov_P,BinStat,SCGs,Marker,f_Score,tag,Prefix,process,jgi,log_P):
-    Log={}
-    Completeness=len(list(filter(lambda x: BinStat[x]>=1,BinStat)))*100/float(len(Marker))
-    Redundancy=sum([BinStat[k]-1 for k in BinStat if BinStat[k]>1])*100/float(len(Marker))
-    if float(Completeness) >= 50 and float(Redundancy) < 5:
-        shutil.copy(Path+'/'+i,Out_P+'/'+Prefix+'.'+i.split(Ex)[0]+'.'+tag+'.fa')
-        Size=Cal_size(Path+'/'+i)
-        Log[str(i.split(Ex)[0]+'.'+tag)]={'Domain':tag,'Completeness':Completeness,'Redundancy':Redundancy,'Size':Size,'Score':Completeness- 5*Redundancy}
-    elif float(Completeness) >= 50.0 :
-        ex_contig=[];sub=1
-        for n in range(15):
-            Km,Fa_Size=Clustering(Path+'/'+i,Cov_P,n+1,process,jgi)
-            Log,ex_contig,sub=Checking_info_Euk(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,f_Score,tag,Path,ex_contig,sub,Prefix,log_P,n+1,Ex)
+            Log,ex_contig,sub=Checking_info(Km,SCGs,Out_P,Fa_Size,Marker,Log,i,comp,cont,tag,Path,ex_contig,sub,Prefix,log_P,n+1,Ex)
             if Log==False:
                 break
     return Log

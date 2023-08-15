@@ -355,20 +355,20 @@ def make_euk_marker(hmmpress,Eukcc_DB,tmp_P,PTHR_P,log_P):
     cmd=[hmmpress,tmp_P]
     run_cmd(cmd,program='hmmpress',log_dir=log_P,shell=False)
 
-def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P):
+def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,comp,cont,log_P,target):
     BSCGs={};ASCGs={};ESCGs={}
     BCheck=[];ACheck=[];ECheck=[]
-    with open(bin_P+'/gene.Total.hit','r') as B:
-        for l in B:
-            if not l.startswith('#'):
-                l=l.split()
-                BCheck,BSCGs=cb.make_Marker(l,cb.BAC120_MARKERS,BCheck,BSCGs)
-                ACheck,ASCGs=cb.make_Marker(l,cb.AR122_MARKERS,ACheck,ASCGs)
-    
-    BBinStat=collections.Counter(BCheck)
-    ABinStat=collections.Counter(ACheck)
-    Sb=cb.check_Marker(gF_P,ex,oF_P,i,cov,BBinStat,BSCGs,cb.BAC120_MARKERS,50,'Bac',preF,process,jgi,log_P)
-    Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,50,'Arc',preF,process,jgi,log_P)
+    if target!='Euk':
+        with open(bin_P+'/gene.Total.hit','r') as B:
+            for l in B:
+                if not l.startswith('#'):
+                    l=l.split()
+                    BCheck,BSCGs=cb.make_Marker(l,cb.BAC120_MARKERS,BCheck,BSCGs)
+                    ACheck,ASCGs=cb.make_Marker(l,cb.AR122_MARKERS,ACheck,ASCGs)
+        BBinStat=collections.Counter(BCheck)
+        ABinStat=collections.Counter(ACheck)
+        Sb=cb.check_Marker(gF_P,ex,oF_P,i,cov,BBinStat,BSCGs,cb.BAC120_MARKERS,comp,cont,'Bac',preF,process,jgi,log_P)
+        Sa=cb.check_Marker(gF_P,ex,oF_P,i,cov,ABinStat,ASCGs,cb.AR122_MARKERS,comp,cont,'Arc',preF,process,jgi,log_P)
     
     if Eukcc_DB:
         EUK_MARKERS=cb.select_E_marker(Eukcc_DB.split('/')[-1].split('.')[0])
@@ -378,13 +378,16 @@ def check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P):
                     l=l.split()
                     ECheck,ESCGs=cb.make_Marker(l,EUK_MARKERS,ECheck,ESCGs)
         EBinStat=collections.Counter(ECheck)
-        Se=cb.check_Marker(gF_P,ex,oF_P,i,cov,EBinStat,ESCGs,EUK_MARKERS,40,'Euk',preF,process,jgi,log_P) #filter_Q>50 # mitigate to 40
+        Se=cb.check_Marker(gF_P,ex,oF_P,i,cov,EBinStat,ESCGs,EUK_MARKERS,comp-10,cont,'Euk',preF,process,jgi,log_P) #filter_Q>50 # mitigate to 40
         #Se=cb.check_Marker_Euk(gF_P,ex,oF_P,i,cov,EBinStat,ESCGs,EUK_MARKERS,40,'Euk',preF,process,jgi,log_P)
-        return Sb,Sa,Se
+        if target=='Both':
+            return Sb,Sa,Se
+        elif target=='Euk':
+            return Se
     else:
         return Sb,Sa
 
-def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi,target,gmesEuk=True):
+def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi,target,comp,cont,gmesEuk=True):
     # check DB and program path
     info_P=str(pathlib.Path(__file__).parent.absolute())+'/programs.txt'
     Pfam=str(pathlib.Path(__file__).parent.absolute())+'/data/gtdbtk86/Pfam-A.hmm'
@@ -393,7 +396,6 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi,target,gmesEuk=True):
     if not os.path.isdir(Eukcc_P):
         logging.error("Please set eukcc DB filepath !\n")
         sys.exit()
-
     if not os.path.isfile(info_P):
         logging.error("Please check program.txt file !\n")
         sys.exit()
@@ -496,8 +498,6 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi,target,gmesEuk=True):
            write_log(oF_P,"# There are no MAGs for Euk")
            continue
         # bypass
-        #if os.path.isfile(bin_P+'/gene.Total.hit'):
-        #   bypass='Y'
         # run hmmsearch to marker set
         if bypass == "N":
             run_HMM_to_Marker(hmmsearch,process,bin_P,name,Pfam,Tigrfam,Eukcc_DB,log_P=oF_P,gmes=gmes)
@@ -508,10 +508,13 @@ def main(gF,cov,oF,ex,preF,sizeG,process,bypass,jgi,target,gmesEuk=True):
         # get SCGs data
         if Eukcc_DB:
             write_log(oF_P,"# start refining bac/arc/euk MAGs")
-            Sb,Sa,Se=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P=oF_P)
+            if target=='Euk':
+                Se=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,comp,cont,log_P=oF_P,target='Euk')
+            else:
+                Sb,Sa,Se=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,comp,cont,log_P=oF_P,target='Both')
         else:
             write_log(oF_P,"# start refining bac/arc MAGs")
-            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,log_P=oF_P)
+            Sb,Sa=check_cluster(bin_P,ex,gF_P,oF_P,i,cov,preF,process,jgi,Eukcc_DB,comp,cont,log_P=oF_P,target='Prok')
         try:
             Stat.update(Sb)
         except:
@@ -550,6 +553,10 @@ if __name__=="__main__":
         help="please insert Y or N (Y=using jgi coverage file) | default = N",type="string")
     parser.add_option("-m","--run_gmesEuk",dest="gmesEuk",
         help="gene prediction with gmes for Euk (Y or N) | default = Y",type="string")
+    parser.add_option("--comp",dest="score_completeness",
+        help="core gene completeness | default = 50",type="int")
+    parser.add_option("--cont",dest="score_contamination",
+        help="core gene contamination | default = 10",type="int")
     parser.add_option("--target",dest="target",
         help="refiner target (Prok or Euk) | default = Both (Prokaryote and Eukaryote)",type="string")
     (opts,args)=parser.parse_args()
@@ -575,8 +582,12 @@ if __name__=="__main__":
             opts.jgi="N"
         if opts.target is None:
             opts.target="Both"
+        if opts.score_completeness is None:
+            opts.score_completeness=50
+        if opts.score_contamination is None:
+            opts.score_contamination=10
         if opts.gmesEuk=='N':
             opts.gmesEuk=False
         else:
             opts.gmesEuk=True
-        main(opts.genome,opts.coverage,opts.output,'.'+opts.extension,opts.prefix,opts.size,opts.process,opts.bypass,opts.jgi,opts.target,opts.gmesEuk)
+        main(opts.genome,opts.coverage,opts.output,'.'+opts.extension,opts.prefix,opts.size,opts.process,opts.bypass,opts.jgi,opts.target,opts.score_completeness,opts.score_contamination,opts.gmesEuk)
