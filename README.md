@@ -8,6 +8,7 @@ __Additional Clustering Refiner (ACR)__, which regroups the contigs of the metag
 Usage: acr.py -g [bin folder] -c [coverage file] -o [output]
 
 Options:
+
   -h, --help            show this help message and exit
   -g GENOME, --genome=GENOME
                         genome file path
@@ -25,13 +26,18 @@ Options:
   -b BYPASS, --bypass=BYPASS
                         bypass prodigal - hmmsearch | default = N
   -j JGI, --from_jgi_cov=JGI
-                        please insert Y or N (Y=using jgi coverage file from MetaBAT2) |
+                        please insert Y or N (Y=using jgi coverage file) |
                         default = N
   -m GMESEUK, --run_gmesEuk=GMESEUK
                         gene prediction with gmes for Euk (Y or N) | default =
                         Y
+  --comp=SCORE_COMPLETENESS
+                        core gene completeness | default = 50
+  --cont=SCORE_CONTAMINATION
+                        core gene contamination | default = 10
   --target=TARGET       refiner target (Prok or Euk) | default = Both
                         (Prokaryote and Eukaryote)
+
 ```
 
 #### __Examples__
